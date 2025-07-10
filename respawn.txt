@@ -1,0 +1,77 @@
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.CoreGui  -- Parent it to CoreGui to make it work with an executor
+
+-- Create the frame (black background with rounded corners)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)  -- Black background
+frame.Active = true
+frame.Draggable = true  -- Make the frame draggable
+frame.Parent = screenGui
+
+-- Add rounded corners and border to the frame
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 15)
+frameCorner.Parent = frame
+
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Thickness = 2
+frameStroke.Color = Color3.new(1, 1, 1)  -- White border
+frameStroke.Parent = frame
+
+-- Create the label text
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 0.5, 0)
+label.Position = UDim2.new(0, 0, 0, 10)
+label.Text = "Do you want to respawn?"
+label.TextColor3 = Color3.new(1, 1, 1)  -- White text
+label.BackgroundTransparency = 1
+label.Font = Enum.Font.SourceSans
+label.TextSize = 24
+label.Parent = frame
+
+-- Create "Yes" button
+local yesButton = Instance.new("TextButton")
+yesButton.Size = UDim2.new(0.4, 0, 0.3, 0)
+yesButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+yesButton.Text = "Yes"
+yesButton.TextColor3 = Color3.new(0, 1, 0)  -- Green text
+yesButton.BackgroundTransparency = 1
+yesButton.Font = Enum.Font.SourceSans
+yesButton.TextSize = 24
+yesButton.Parent = frame
+
+local yesCorner = Instance.new("UICorner")
+yesCorner.CornerRadius = UDim.new(0, 10)
+yesCorner.Parent = yesButton
+
+-- Create "No" button
+local noButton = Instance.new("TextButton")
+noButton.Size = UDim2.new(0.4, 0, 0.3, 0)
+noButton.Position = UDim2.new(0.5, 0, 0.6, 0)
+noButton.Text = "No"
+noButton.TextColor3 = Color3.new(1, 0, 0)  -- Red text
+noButton.BackgroundTransparency = 1
+noButton.Font = Enum.Font.SourceSans
+noButton.TextSize = 24
+noButton.Parent = frame
+
+local noCorner = Instance.new("UICorner")
+noCorner.CornerRadius = UDim.new(0, 10)
+noCorner.Parent = noButton
+
+-- Function to handle "Yes" button click
+yesButton.MouseButton1Click:Connect(function()
+    local player = game:GetService("Players").LocalPlayer
+    if player and player.Character and player.Character:FindFirstChild("Head") then
+        player.Character.Head:Destroy()
+    end
+    screenGui:Destroy()  -- Close GUI after execution
+end)
+
+-- Function to handle "No" button click
+noButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()  -- Simply close the GUI
+end)
