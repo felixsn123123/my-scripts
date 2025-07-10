@@ -1,0 +1,153 @@
+-- Services
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "TeleportGui"
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Main Frame
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 300, 0, 160)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -80)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+
+-- Rounded corners and white border
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+local border = Instance.new("UIStroke", mainFrame)
+border.Color = Color3.fromRGB(255, 255, 255)
+border.Thickness = 2
+
+-- Label
+local label = Instance.new("TextLabel", mainFrame)
+label.Text = "Teleport to Player"
+label.Size = UDim2.new(1, -40, 0, 30)
+label.Position = UDim2.new(0, 20, 0, 10)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.TextScaled = true
+label.Font = Enum.Font.Gotham
+
+-- TextBox
+local textBox = Instance.new("TextBox", mainFrame)
+textBox.Size = UDim2.new(1, -40, 0, 30)
+textBox.Position = UDim2.new(0, 20, 0, 50)
+textBox.Text = "Type username"
+textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+textBox.TextScaled = true
+textBox.Font = Enum.Font.Gotham
+
+-- Teleport Button (perfectly centered and with smaller text)
+local tpButton = Instance.new("TextButton", mainFrame)
+tpButton.Size = UDim2.new(1, -60, 0, 35)
+tpButton.Position = UDim2.new(0, 30, 0, 95)
+tpButton.Text = "Teleport"
+tpButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+tpButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+tpButton.Font = Enum.Font.GothamBold
+tpButton.TextSize = 25
+Instance.new("UICorner", tpButton).CornerRadius = UDim.new(0, 6)
+
+-- Minimize Button (top right)
+local minButton = Instance.new("TextButton", mainFrame)
+minButton.Size = UDim2.new(0, 20, 0, 20)
+minButton.Position = UDim2.new(1, -30, 0, 10)
+minButton.Text = "-"
+minButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+minButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+minButton.TextScaled = true
+minButton.Font = Enum.Font.GothamBold
+
+-- Reopen Button (top right)
+local reopenButton = Instance.new("TextButton", screenGui)
+reopenButton.Size = UDim2.new(0, 20, 0, 20)
+reopenButton.Position = UDim2.new(1, -30, 0, 10)
+reopenButton.Text = "+"
+reopenButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+reopenButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+reopenButton.TextScaled = true
+reopenButton.Font = Enum.Font.GothamBold
+reopenButton.Visible = false
+
+-- Logic Functions
+local function findClosestPlayer(username)
+	local closestPlayer, minDistance = nil, math.huge
+	for _, targetPlayer in pairs(Players:GetPlayers()) do
+		if targetPlayer.Name:lower():find(username:lower()) then
+			local targetHRP = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+			local playerHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if targetHRP and playerHRP then
+				local distance = (targetHRP.Position - playerHRP.Position).Magnitude
+				if distance < minDistance then
+					minDistance = distance
+					closestPlayer = targetPlayer
+				end
+			end
+		end
+	end
+	return closestPlayer
+end
+
+local function equipToolByName(toolName)
+	local tool = player.Backpack:FindFirstChild(toolName)
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if tool and humanoid then
+		humanoid:EquipTool(tool)
+	end
+end
+
+local function unequipTool()
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid:UnequipTools()
+	end
+end
+
+local function spamToolAction()
+	local tool = player.Backpack:FindFirstChild("Fist")
+	if tool then
+		for i = 1, 2 do
+			equipToolByName("Fist")
+			wait(0.1)
+			unequipTool()
+			wait(0.1)
+		end
+	end
+end
+
+local function teleportAndSpam(username)
+	local target = findClosestPlayer(username)
+	local targetHRP = target and target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+	local playerHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if targetHRP and playerHRP then
+		for i = 1, 2 do
+			playerHRP.CFrame = targetHRP.CFrame
+			wait(0.3)
+			spamToolAction()
+		end
+	end
+end
+
+-- Button Events
+tpButton.MouseButton1Click:Connect(function()
+	local name = textBox.Text
+	if name and name ~= "" and name ~= "Type username" then
+		teleportAndSpam(name)
+	end
+end)
+
+minButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+	minButton.Visible = false
+	reopenButton.Visible = true
+end)
+
+reopenButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = true
+	minButton.Visible = true
+	reopenButton.Visible = false
+end)
