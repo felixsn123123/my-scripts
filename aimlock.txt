@@ -7,8 +7,8 @@ function AimLock()
 	local target
 	local lastMagnitude = math.huge
 	for _, v in pairs(game.Players:GetPlayers()) do
-		if v ~= player and v.Character and v.Character.PrimaryPart then
-			local charPos = v.Character.PrimaryPart.Position
+		if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+			local charPos = v.Character.Head.Position
 			local mousePos = mouse.Hit.p
 			if (charPos - mousePos).Magnitude < lastMagnitude then
 				lastMagnitude = (charPos - mousePos).Magnitude
@@ -17,8 +17,8 @@ function AimLock()
 		end
 	end
 
-	if target and target.Character and target.Character.PrimaryPart then
-		local charPos = target.Character.PrimaryPart.Position
+	if target and target.Character and target.Character:FindFirstChild("Head") then
+		local charPos = target.Character.Head.Position
 		local cam = workspace.CurrentCamera
 		local pos = cam.CFrame.Position
 		workspace.CurrentCamera.CFrame = CFrame.new(pos, charPos)
