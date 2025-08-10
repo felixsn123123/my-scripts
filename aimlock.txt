@@ -1,4 +1,4 @@
--- Original Script
+--== Aimlock Script ==--
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 local Aiming = false
@@ -25,6 +25,7 @@ function AimLock()
 	end
 end
 
+--== Input Handling ==--
 local UserInputService = game:GetService("UserInputService")
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -33,13 +34,25 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
+--== RenderStepped Loop (AimLock + Velocity Control) ==--
+local Y = 0 -- Y-velocity override (prevents jumping/falling)
+
 game:GetService("RunService").RenderStepped:Connect(function()
+	-- Aimlock if enabled
 	if Aiming then
 		AimLock()
 	end
+
+	-- Velocity manipulation for all players except local
+	for _, v in pairs(game.Players:GetPlayers()) do
+		if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+			local old_vel = v.Character.HumanoidRootPart.Velocity
+			v.Character.HumanoidRootPart.Velocity = Vector3.new(old_vel.X, Y, old_vel.Z)
+		end
+	end
 end)
 
--- GUI Code
+--== GUI Code ==--
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local TextLabel = Instance.new("TextLabel")
@@ -47,7 +60,6 @@ local UICorner = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
 local Button = Instance.new("TextButton")
 local ButtonCorner = Instance.new("UICorner")
-local Drag = Instance.new("Frame")
 
 ScreenGui.Name = "AimLockGui"
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -56,10 +68,10 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 Frame.Name = "MainFrame"
 Frame.Parent = ScreenGui
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.Position = UDim2.new(1, -500, 0.35, 0) -- Right-center positioning
+Frame.Position = UDim2.new(1, -500, 0.35, 0)
 Frame.Size = UDim2.new(0, 300, 0, 150)
 Frame.Active = true
-Frame.Draggable = true -- Enables movement
+Frame.Draggable = true
 
 UICorner.Parent = Frame
 
